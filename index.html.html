@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Web Scraping & Data Automation Framework</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+    </style>
+</head>
+<body class="h-full font-sans antialiased flex flex-col bg-slate-950 text-slate-100 overflow-hidden">
+
+    <!-- Top Navigation Header -->
+    <header class="h-16 bg-slate-900 border-b border-slate-800 px-6 flex items-center justify-between flex-shrink-0 z-20">
+        <div class="flex items-center space-x-3">
+            <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-bold text-xl shadow-lg shadow-emerald-500/20">
+                <i class="fa-solid fa-[#]"></i><i class="fa-solid fa-spider text-lg"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+                    PyScrape Studio <span class="text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full">v2.4.0</span>
+                </h1>
+                <p class="text-xs text-slate-400">Python Web Scraping & Data Automation Studio</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <nav class="flex items-center space-x-1 bg-slate-950/60 p-1.5 rounded-xl border border-slate-800/80">
+            <button onclick="switchTab('builder')" id="tab-builder" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg transition-all flex items-center gap-2 bg-emerald-500 text-slate-950 font-semibold shadow-md">
+                <i class="fa-solid fa-code"></i> Script Generator
+            </button>
+            <button onclick="switchTab('simulator')" id="tab-simulator" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-vial"></i> Live Simulator
+            </button>
+            <button onclick="switchTab('pipeline')" id="tab-pipeline" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-filter"></i> Data Pipelines
+            </button>
+            <button onclick="switchTab('network')" id="tab-network" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-network-wired"></i> Rate Limits & Proxies
+            </button>
+            <button onclick="switchTab('scheduler')" id="tab-scheduler" class="tab-btn px-4 py-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 transition-all flex items-center gap-2">
+                <i class="fa-solid fa-clock"></i> Automation Jobs
+            </button>
+        </nav>
+
+        <!-- Action Quick Status -->
+        <div class="flex items-center space-x-3">
+            <div class="flex items-center gap-2 text-xs bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-lg">
+                <span class="relative flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span class="text-slate-300 font-mono">Engine: Active</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 overflow-hidden relative">
+
+        <!-- TAB 1: SCRIPT GENERATOR / NO-CODE BUILDER -->
+        <section id="view-builder" class="view-panel h-full flex flex-col md:flex-row">
+            <!-- Left Panel: Configurations -->
+            <div class="w-full md:w-1/2 lg:w-5/12 border-r border-slate-800 p-5 overflow-y-auto bg-slate-900/40 space-y-6">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-1">1. Framework Selection</h2>
+                    <p class="text-xs text-slate-400 mb-3">Choose the backend library that best fits your scraping requirements.</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="framework" value="bs4" checked onchange="updateScriptGenerator()" class="peer hidden">
+                            <div class="p-3 border border-slate-700 rounded-xl bg-slate-800/40 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 peer-checked:text-emerald-400 transition-all hover:border-slate-600">
+                                <i class="fa-solid fa-code text-lg mb-1 block"></i>
+                                <span class="text-xs font-bold block">BeautifulSoup4</span>
+                                <span class="text-[10px] text-slate-400 block mt-0.5">Fast / Static</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="framework" value="selenium" onchange="updateScriptGenerator()" class="peer hidden">
+                            <div class="p-3 border border-slate-700 rounded-xl bg-slate-800/40 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 peer-checked:text-emerald-400 transition-all hover:border-slate-600">
+                                <i class="fa-solid fa-robot text-lg mb-1 block"></i>
+                                <span class="text-xs font-bold block">Selenium</span>
+                                <span class="text-[10px] text-slate-400 block mt-0.5">Dynamic / JS</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="framework" value="playwright" onchange="updateScriptGenerator()" class="peer hidden">
+                            <div class="p-3 border border-slate-700 rounded-xl bg-slate-800/40 text-center peer-checked:border-emerald-500 peer-checked:bg-emerald-500/10 peer-checked:text-emerald-400 transition-all hover:border-slate-600">
+                                <i class="fa-solid fa-bolt text-lg mb-1 block"></i>
+                                <span class="text-xs font-bold block">Playwright</span>
+                                <span class="text-[10px] text-slate-400 block mt-0.5">Modern / Async</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Basic Options -->
+                <div class="space-y-4">
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">2. Target Configuration</h2>
+                    
+                    <div>
+                        <label class="block text-xs font-medium text-slate-300 mb-1">Target URL</label>
+                        <input type="text" id="cfg-url" value="https://example-store.com/products" oninput="updateScriptGenerator()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-emerald-400 focus:outline-none focus:border-emerald-500">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Container Selector</label>
+                            <input type="text" id="cfg-container" value="div.product-card" oninput="updateScriptGenerator()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-300 mb-1">Request Delay (seconds)</label>
+                            <input type="number" id="cfg-delay" value="2" min="0" step="0.5" oninput="updateScriptGenerator()" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extraction Elements Builder -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">3. Field Selectors</h2>
+                        <button onclick="addFieldRow()" class="text-xs bg-slate-800 hover:bg-slate-700 text-emerald-400 px-2.5 py-1 rounded-md border border-slate-700 transition-colors flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Field
+                        </button>
+                    </div>
+
+                    <div id="fields-container" class="space-y-2">
+                        <!-- Dynamic fields will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="space-y-3 pt-2 border-t border-slate-800">
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">4. Security & Stealth</h2>
+                    
+                    <div class="space-y-2">
+                        <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer bg-slate-800/30 p-2.5 rounded-lg border border-slate-800 hover:border-slate-700">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-user-secret text-slate-400"></i> Rotate User Agents</span>
+                            <input type="checkbox" id="cfg-useragent" checked onchange="updateScriptGenerator()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        </label>
+                        <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer bg-slate-800/30 p-2.5 rounded-lg border border-slate-800 hover:border-slate-700">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-shield-halved text-slate-400"></i> Enable Proxy Mesh</span>
+                            <input type="checkbox" id="cfg-proxy" onchange="updateScriptGenerator()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        </label>
+                        <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer bg-slate-800/30 p-2.5 rounded-lg border border-slate-800 hover:border-slate-700">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-file-export text-slate-400"></i> Auto Export results</span>
+                            <input type="checkbox" id="cfg-export" checked onchange="updateScriptGenerator()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                        </label>
+                        <div class="flex items-center gap-2 text-xs text-slate-300 bg-slate-800/30 p-2.5 rounded-lg border border-slate-800"><span class="flex-1"><i class="fa-solid fa-file-csv text-slate-400"></i> Export format</span>
+                            <select id="cfg-format" onchange="updateScriptGenerator()" class="bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs"><option value="csv">CSV</option><option value="json">JSON</option><option value="both">CSV + JSON</option></select></div>
+                        <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer bg-slate-800/30 p-2.5 rounded-lg border border-slate-800 hover:border-slate-700"><span class="flex items-center gap-2"><i class="fa-solid fa-forward text-slate-400"></i> Follow pagination (Next page)</span><input type="checkbox" id="cfg-paginate"  onchange="updateScriptGenerator()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0"></label>
+                        <div class="grid grid-cols-2 gap-2"><input id="cfg-next" value="a.next" oninput="updateScriptGenerator()" placeholder="Next button selector" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 font-mono"><input id="cfg-maxpages" type="number" min="1" value="5" oninput="updateScriptGenerator()" placeholder="Max pages" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 font-mono"></div>
+                        <div class="flex items-center gap-2 text-xs text-slate-300 bg-slate-800/30 p-2.5 rounded-lg border border-slate-800"><span class="flex-1"><i class="fa-solid fa-rotate text-slate-400"></i> Retries on failure</span>
+                            <input id="cfg-retries" type="number" min="0" max="10" value="3" oninput="updateScriptGenerator()" class="w-16 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs"></div>
+                        <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer bg-slate-800/30 p-2.5 rounded-lg border border-slate-800 hover:border-slate-700"><span class="flex items-center gap-2"><i class="fa-solid fa-file-lines text-slate-400"></i> Log to scraper.log</span><input type="checkbox" id="cfg-log" checked onchange="updateScriptGenerator()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0"></label>
+                        <label class="flex items-center justify-between text-xs text-slate-300 cursor-pointer bg-slate-800/30 p-2.5 rounded-lg border border-slate-800 hover:border-slate-700"><span class="flex items-center gap-2"><i class="fa-solid fa-robot text-slate-400"></i> Respect robots.txt</span><input type="checkbox" id="cfg-robots" checked onchange="updateScriptGenerator()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0"></label>
+                        <div class="pt-2 border-t border-slate-800 space-y-2">
+                            <div class="text-[10px] uppercase tracking-wider text-slate-500">Quick tools</div>
+                            <select id="cfg-preset" onchange="applyPreset(this.value)" class="w-full bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 font-mono"><option value="">Load a preset...</option><option value="ecommerce">E-commerce products</option><option value="news">News articles</option><option value="jobs">Job listings</option></select>
+                            <div class="flex gap-2"><button onclick="saveConfig()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-xs rounded px-2 py-1.5"><i class="fa-solid fa-floppy-disk"></i> Save config</button>
+                            <button onclick="document.getElementById('cfg-load-file').click()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-xs rounded px-2 py-1.5"><i class="fa-solid fa-folder-open"></i> Load config</button>
+                            <input type="file" id="cfg-load-file" accept=".json" class="hidden" onchange="loadConfig(this)"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: Code Output & Preview -->
+            <div class="w-full md:w-1/2 lg:w-7/12 flex flex-col bg-slate-950">
+                <!-- Code Header -->
+                <div class="bg-slate-900 border-b border-slate-800 p-3 px-5 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="h-3 w-3 rounded-full bg-red-500 inline-block"></span>
+                        <span class="h-3 w-3 rounded-full bg-yellow-500 inline-block"></span>
+                        <span class="h-3 w-3 rounded-full bg-green-500 inline-block"></span>
+                        <span class="text-xs font-mono text-slate-400 ml-2" id="generated-filename">scraper_bs4.py</span>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="copyCode()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs px-3 py-1.5 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+                            <i class="fa-regular fa-copy"></i> Copy Code
+                        </button>
+                        <button onclick="downloadCode()" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-semibold text-xs px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-download"></i> Download Script
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Code Viewport -->
+                <div class="flex-1 relative overflow-auto p-4 bg-slate-950">
+                    <pre><code id="python-code-output" class="font-mono text-xs text-slate-300 leading-relaxed block"># Generating python script...</code></pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: INTERACTIVE LIVE SIMULATOR -->
+        <section id="view-simulator" class="view-panel hidden h-full flex flex-col">
+            <!-- Toolbar -->
+            <div class="bg-slate-900 border-b border-slate-800 p-4 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-3 flex-1 min-w-[300px]">
+                    <span class="text-xs font-semibold text-slate-400 uppercase">Target HTML Mock:</span>
+                    <select id="sim-target-select" onchange="loadSimMockTarget()" class="bg-slate-950 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                        <option value="ecom">E-Commerce Products Listing</option>
+                        <option value="jobs">Job Board Listings</option>
+                        <option value="news">Tech News Articles</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="runSimulation()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-2 shadow-lg shadow-emerald-500/10">
+                        <i class="fa-solid fa-play"></i> Run Extraction Test
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Interactive Workspace Split -->
+            <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
+                <!-- HTML DOM Visualizer Panel -->
+                <div class="w-full lg:w-1/2 border-r border-slate-800 flex flex-col h-1/2 lg:h-full bg-slate-950">
+                    <div class="bg-slate-900/60 p-2.5 px-4 border-b border-slate-800 flex justify-between items-center">
+                        <span class="text-xs font-medium text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-globe text-emerald-400"></i> Simulated DOM / Source Preview
+                        </span>
+                        <span class="text-[10px] font-mono text-slate-500">HTML Standard 5.0</span>
+                    </div>
+                    <div class="flex-1 p-4 overflow-auto font-mono text-xs text-slate-400 bg-slate-950" id="sim-dom-preview">
+                        <!-- Rendered Target HTML DOM -->
+                    </div>
+                </div>
+
+                <!-- Extraction Results Panel -->
+                <div class="w-full lg:w-1/2 flex flex-col h-1/2 lg:h-full bg-slate-900/20">
+                    <div class="bg-slate-900/60 p-2.5 px-4 border-b border-slate-800 flex justify-between items-center">
+                        <span class="text-xs font-medium text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-table text-cyan-400"></i> Parsed Structured Output
+                        </span>
+                        <span class="text-xs text-emerald-400 font-mono" id="sim-records-count">0 items extracted</span>
+                    </div>
+                    
+                    <div class="flex-1 p-4 overflow-auto">
+                        <div class="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/50">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-800/80 text-[11px] font-semibold text-slate-300 uppercase tracking-wider border-b border-slate-700">
+                                    <tr id="sim-table-head">
+                                        <th class="p-3">#</th>
+                                        <th class="p-3">Title</th>
+                                        <th class="p-3">Price</th>
+                                        <th class="p-3">Rating</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="sim-table-body" class="divide-y divide-slate-800 text-xs font-mono text-slate-300">
+                                    <tr>
+                                        <td colspan="4" class="p-6 text-center text-slate-500 font-sans">Click "Run Extraction Test" to execute query selectors against the mock target.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: DATA PIPELINE & CLEANING -->
+        <section id="view-pipeline" class="view-panel hidden h-full flex flex-col md:flex-row">
+            <!-- Left Controls: Pipeline Transformation Steps -->
+            <div class="w-full md:w-1/3 lg:w-1/4 border-r border-slate-800 p-5 bg-slate-900/40 overflow-y-auto space-y-5">
+                <div>
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-2">Transform Pipeline</h2>
+                    <p class="text-xs text-slate-400">Configure data cleansing operations applied to incoming raw text before database insertion.</p>
+                </div>
+
+                <div class="space-y-3">
+                    <label class="flex items-center justify-between text-xs text-slate-200 bg-slate-800/40 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-broom text-amber-400"></i>
+                            <div>
+                                <div class="font-medium">Strip Whitespace & HTML</div>
+                                <div class="text-[10px] text-slate-400">Remove &amp;nbsp;, tags & extra spaces</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="pipe-strip" checked onchange="runDataPipeline()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                    </label>
+
+                    <label class="flex items-center justify-between text-xs text-slate-200 bg-slate-800/40 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-dollar-sign text-emerald-400"></i>
+                            <div>
+                                <div class="font-medium">Cast Prices to Float</div>
+                                <div class="text-[10px] text-slate-400">Convert '$1,299.99' -> 1299.99</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="pipe-price" checked onchange="runDataPipeline()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                    </label>
+
+                    <label class="flex items-center justify-between text-xs text-slate-200 bg-slate-800/40 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-clone text-indigo-400"></i>
+                            <div>
+                                <div class="font-medium">Deduplicate Records</div>
+                                <div class="text-[10px] text-slate-400">Drop matching items by Title</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="pipe-dedupe" checked onchange="runDataPipeline()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                    </label>
+
+                    <label class="flex items-center justify-between text-xs text-slate-200 bg-slate-800/40 p-3 rounded-xl border border-slate-800 hover:border-slate-700 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-ban text-red-400"></i>
+                            <div>
+                                <div class="font-medium">Filter Null / Missing Values</div>
+                                <div class="text-[10px] text-slate-400">Discard incomplete rows</div>
+                            </div>
+                        </div>
+                        <input type="checkbox" id="pipe-nulls" checked onchange="runDataPipeline()" class="rounded bg-slate-900 border-slate-700 text-emerald-500 focus:ring-0">
+                    </label>
+                </div>
+
+                <div class="pt-4 border-t border-slate-800 space-y-3">
+                    <h2 class="text-sm font-semibold text-slate-200 uppercase tracking-wider">Export Format</h2>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="setExportFormat('json')" id="fmt-json" class="fmt-btn bg-emerald-500/20 border border-emerald-500 text-emerald-400 text-xs py-2 rounded-lg font-mono font-medium">JSON</button>
+                        <button onclick="setExportFormat('csv')" id="fmt-csv" class="fmt-btn bg-slate-800 border border-slate-700 text-slate-300 text-xs py-2 rounded-lg font-mono font-medium hover:bg-slate-700">CSV</button>
+                        <button onclick="setExportFormat('sql')" id="fmt-sql" class="fmt-btn bg-slate-800 border border-slate-700 text-slate-300 text-xs py-2 rounded-lg font-mono font-medium hover:bg-slate-700">SQLite</button>
+                        <button onclick="setExportFormat('excel')" id="fmt-excel" class="fmt-btn bg-slate-800 border border-slate-700 text-slate-300 text-xs py-2 rounded-lg font-mono font-medium hover:bg-slate-700">Excel (TSV)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Workspace: Input Raw vs Cleaned Output -->
+            <div class="flex-1 grid grid-rows-2 md:grid-rows-1 md:grid-cols-2 gap-0 bg-slate-950">
+                <!-- Raw Uncleaned Data -->
+                <div class="border-b md:border-b-0 md:border-r border-slate-800 flex flex-col">
+                    <div class="bg-slate-900/60 p-3 px-4 border-b border-slate-800 flex justify-between items-center">
+                        <span class="text-xs font-semibold text-amber-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-triangle-exclamation"></i> Raw Extracted Data (Dirty)
+                        </span>
+                        <span class="text-[10px] text-slate-500">Unprocessed Scraped Input</span>
+                    </div>
+                    <div class="flex-1 p-4 overflow-auto">
+                        <pre><code id="pipeline-raw-input" class="font-mono text-xs text-amber-200/80"></code></pre>
+                    </div>
+                </div>
+
+                <!-- Cleaned Output -->
+                <div class="flex flex-col bg-slate-950">
+                    <div class="bg-slate-900/60 p-3 px-4 border-b border-slate-800 flex justify-between items-center">
+                        <span class="text-xs font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-circle-check"></i> Cleaned Pipeline Output
+                        </span>
+                        <button onclick="copyPipelineOutput()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded border border-slate-700 transition">
+                            <i class="fa-regular fa-copy"></i> Copy
+                        </button>
+                    </div>
+                    <div class="flex-1 p-4 overflow-auto">
+                        <pre><code id="pipeline-clean-output" class="font-mono text-xs text-emerald-300"></code></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: RATE LIMITS & PROXY ROTATION -->
+        <section id="view-network" class="view-panel hidden h-full flex flex-col p-6 overflow-y-auto space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">Rate Limiting & Proxy Rotation Engine</h2>
+                    <p class="text-xs text-slate-400">Configure request distribution algorithms and inspect proxy pool health.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="simulateNetworkTraffic()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <i class="fa-solid fa-rotate"></i> Simulate 50 Request Burst
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-slate-400 text-xs font-medium mb-1">Active Proxies in Pool</div>
+                    <div class="text-2xl font-bold text-emerald-400 font-mono" id="stat-proxies-count">12 / 12</div>
+                    <div class="text-[10px] text-slate-500 mt-1">HTTP / SOCKS5 Protocols</div>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-slate-400 text-xs font-medium mb-1">Success Rate</div>
+                    <div class="text-2xl font-bold text-emerald-400 font-mono" id="stat-success-rate">98.4%</div>
+                    <div class="text-[10px] text-slate-500 mt-1">Anti-Bot Bypass Engine</div>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-slate-400 text-xs font-medium mb-1">Avg Latency</div>
+                    <div class="text-2xl font-bold text-cyan-400 font-mono" id="stat-latency">142 ms</div>
+                    <div class="text-[10px] text-slate-500 mt-1">Global IP Edge Nodes</div>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+                    <div class="text-slate-400 text-xs font-medium mb-1">Blocked / Captchas Hit</div>
+                    <div class="text-2xl font-bold text-amber-400 font-mono" id="stat-blocks">1</div>
+                    <div class="text-[10px] text-slate-500 mt-1">Auto-rotated on 403/429</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Rate Limiter Config -->
+                <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-5 space-y-4">
+                    <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-gauge-high text-indigo-400"></i> Rate Limiter Strategy
+                    </h3>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Algorithm</label>
+                        <select class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+                            <option value="token">Token Bucket Algorithm</option>
+                            <option value="leaky">Leaky Bucket Algorithm</option>
+                            <option value="backoff">Exponential Backoff with Jitter</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Requests Per Minute (RPM Limit)</label>
+                        <input type="range" min="10" max="300" value="60" id="rpm-slider" oninput="document.getElementById('rpm-val').innerText = this.value" class="w-full accent-indigo-500">
+                        <div class="flex justify-between text-[11px] font-mono text-slate-400 mt-1">
+                            <span>10 RPM</span>
+                            <span id="rpm-val" class="text-indigo-400 font-bold">60</span>
+                            <span>300 RPM</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Concurrency Throttle (Threads)</label>
+                        <input type="number" value="5" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
+                    </div>
+                </div>
+
+                <!-- Proxy Pool Health Table -->
+                <div class="lg:col-span-2 bg-slate-900/50 border border-slate-800 rounded-xl p-5 flex flex-col">
+                    <h3 class="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-server text-emerald-400"></i> Proxy Pool Status
+                    </h3>
+
+                    <div class="flex-1 overflow-auto border border-slate-800 rounded-lg">
+                        <table class="w-full text-left text-xs font-mono">
+                            <thead class="bg-slate-800/80 text-slate-400 border-b border-slate-700">
+                                <tr>
+                                    <th class="p-2.5">Proxy IP</th>
+                                    <th class="p-2.5">Region</th>
+                                    <th class="p-2.5">Protocol</th>
+                                    <th class="p-2.5">Latency</th>
+                                    <th class="p-2.5">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="proxy-table-body" class="divide-y divide-slate-800 text-slate-300">
+                                <!-- Dynamic proxies inserted here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: AUTOMATION & SCHEDULER -->
+        <section id="view-scheduler" class="view-panel hidden h-full flex flex-col p-6 overflow-y-auto space-y-6">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-lg font-bold text-white">Automated Job Workflows</h2>
+                    <p class="text-xs text-slate-400">Schedule periodic scraping tasks using APScheduler & Celery task pipelines.</p>
+                </div>
+                <button onclick="openNewJobModal()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs px-4 py-2 rounded-lg transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Create Scheduled Job
+                </button>
+            </div>
+
+            <!-- Job Cards Container -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="jobs-container">
+                <!-- Scheduled Jobs will be generated dynamically -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- DATA STATES ---
+        let fields = [
+            { name: 'title', selector: 'h2.product-title', type: 'text' },
+            { name: 'price', selector: 'span.price', type: 'text' },
+            { name: 'rating', selector: '.rating', type: 'text' }
+        ];
+
+        let exportFormat = 'json';
+
+        const mockTargets = {
+            ecom: {
+                dom: `<span class="text-slate-500">&lt;div class="products-grid"&gt;</span>
+  <span class="text-slate-500">&lt;div class="product-card"&gt;</span>
+    <span class="text-indigo-400">&lt;h2 class="product-title"&gt;</span>Wireless Noise-Canceling Headphones<span class="text-indigo-400">&lt;/h2&gt;</span>
+    <span class="text-emerald-400">&lt;span class="price"&gt;</span>$299.99<span class="text-emerald-400">&lt;/span&gt;</span>
+    <span class="text-amber-400">&lt;span class="rating"&gt;</span>4.8 stars<span class="text-amber-400">&lt;/span&gt;</span>
+  <span class="text-slate-500">&lt;/div&gt;</span>
+  <span class="text-slate-500">&lt;div class="product-card"&gt;</span>
+    <span class="text-indigo-400">&lt;h2 class="product-title"&gt;</span>Mechanical Gaming Keyboard<span class="text-indigo-400">&lt;/h2&gt;</span>
+    <span class="text-emerald-400">&lt;span class="price"&gt;</span>$149.50<span class="text-emerald-400">&lt;/span&gt;</span>
+    <span class="text-amber-400">&lt;span class="rating"&gt;</span>4.5 stars<span class="text-amber-400">&lt;/span&gt;</span>
+  <span class="text-slate-500">&lt;/div&gt;</span>
+  <span class="text-slate-500">&lt;div class="product-card"&gt;</span>
+    <span class="text-indigo-400">&lt;h2 class="product-title"&gt;</span>Ultra-wide 34" Curved Monitor<span class="text-indigo-400">&lt;/h2&gt;</span>
+    <span class="text-emerald-400">&lt;span class="price"&gt;</span>$699.00<span class="text-emerald-400">&lt;/span&gt;</span>
+    <span class="text-amber-400">&lt;span class="rating"&gt;</span>4.9 stars<span class="text-amber-400">&lt;/span&gt;</span>
+  <span class="text-slate-500">&lt;/div&gt;</span>
+<span class="text-slate-500">&lt;/div&gt;</span>`,
+                extracted: [
+                    { title: "Wireless Noise-Canceling Headphones", price: "$299.99", rating: "4.8 stars" },
+                    { title: "Mechanical Gaming Keyboard", price: "$149.50", rating: "4.5 stars" },
+                    { title: "Ultra-wide 34\" Curved Monitor", price: "$699.00", rating: "4.9 stars" }
+                ]
+            },
+            jobs: {
+                dom: `<span class="text-slate-500">&lt;ul class="job-list"&gt;</span>
+  <span class="text-slate-500">&lt;li class="job-item"&gt;</span>
+    <span class="text-indigo-400">&lt;h2 class="title"&gt;</span>Senior Python Data Engineer<span class="text-indigo-400">&lt;/h2&gt;</span>
+    <span class="text-emerald-400">&lt;span class="salary"&gt;</span>$140,000 - $170,000<span class="text-emerald-400">&lt;/span&gt;</span>
+    <span class="text-amber-400">&lt;span class="type"&gt;</span>Remote / Full-time<span class="text-amber-400">&lt;/span&gt;</span>
+  <span class="text-slate-500">&lt;/li&gt;</span>
+  <span class="text-slate-500">&lt;li class="job-item"&gt;</span>
+    <span class="text-indigo-400">&lt;h2 class="title"&gt;</span>Backend Automation Architect<span class="text-indigo-400">&lt;/h2&gt;</span>
+    <span class="text-emerald-400">&lt;span class="salary"&gt;</span>$160,000<span class="text-emerald-400">&lt;/span&gt;</span>
+    <span class="text-amber-400">&lt;span class="type"&gt;</span>Hybrid<span class="text-amber-400">&lt;/span&gt;</span>
+  <span class="text-slate-500">&lt;/li&gt;</span>
+<span class="text-slate-500">&lt;/ul&gt;</span>`,
+                extracted: [
+                    { title: "Senior Python Data Engineer", salary: "$140,000 - $170,000", type: "Remote / Full-time" },
+                    { title: "Backend Automation Architect", salary: "$160,000", type: "Hybrid" }
+                ]
+            },
+            news: {
+                dom: `<span class="text-slate-500">&lt;main class="news-feed"&gt;</span>
+  <span class="text-slate-500">&lt;article class="post"&gt;</span>
+    <span class="text-indigo-400">&lt;h2 class="headline"&gt;</span>Python 3.13 Releases Enhanced GIL Capabilities<span class="text-indigo-400">&lt;/h2&gt;</span>
+    <span class="text-emerald-400">&lt;span class="author"&gt;</span>Guido van Rossum<span class="text-emerald-400">&lt;/span&gt;</span>
+    <span class="text-amber-400">&lt;span class="date"&gt;</span>2026-10-12<span class="text-amber-400">&lt;/span&gt;</span>
+  <span class="text-slate-500">&lt;/article&gt;</span>
+<span class="text-slate-500">&lt;/main&gt;</span>`,
+                extracted: [
+                    { headline: "Python 3.13 Releases Enhanced GIL Capabilities", author: "Guido van Rossum", date: "2026-10-12" }
+                ]
+            }
+        };
+
+        const rawDirtyData = [
+            { title: "  Wireless Noise-Canceling Headphones\n ", price: "$299.99", rating: "4.8 stars", tag: "electronics" },
+            { title: "Mechanical Gaming Keyboard", price: "$149.50", rating: "4.5 stars", tag: "electronics" },
+            { title: "Wireless Noise-Canceling Headphones", price: "$299.99", rating: "4.8 stars", tag: "electronics" }, // Duplicate
+            { title: "   Ultra-wide 34\" Curved Monitor  ", price: "$699.00", rating: "4.9 stars", tag: "monitors" },
+            { title: "Broken Entry Item", price: null, rating: undefined, tag: null } // Invalid item
+        ];
+
+        let proxies = [
+            { ip: "192.168.1.101:8080", region: "US-East", proto: "HTTP", latency: "112 ms", status: "Active" },
+            { ip: "185.220.101.5:3128", region: "EU-West", proto: "SOCKS5", latency: "185 ms", status: "Active" },
+            { ip: "103.152.18.2:8000", region: "AP-South", proto: "HTTP", latency: "240 ms", status: "Active" },
+            { ip: "45.142.120.10:1080", region: "US-West", proto: "SOCKS5", latency: "95 ms", status: "Active" },
+            { ip: "198.51.100.42:8080", region: "EU-Central", proto: "HTTP", latency: "310 ms", status: "Cooling Off" }
+        ];
+
+        let scheduledJobs = [
+            { id: 1, name: "Amazon Daily Price Tracker", cron: "0 0 * * *", framework: "Playwright", target: "E-Commerce", status: "Active", lastRun: "10 mins ago" },
+            { id: 2, name: "TechCrunch News Scraper", cron: "0 */4 * * *", framework: "BeautifulSoup", target: "News", status: "Active", lastRun: "2 hours ago" },
+            { id: 3, name: "LinkedIn Jobs Aggregator", cron: "0 9 * * MON", framework: "Selenium", target: "Jobs", status: "Paused", lastRun: "3 days ago" }
+        ];
+
+        // --- NAVIGATION LOGIC ---
+        function switchTab(tabId) {
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-500', 'text-slate-950', 'font-semibold', 'shadow-md');
+                btn.classList.add('text-slate-400', 'hover:text-slate-200');
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('bg-emerald-500', 'text-slate-950', 'font-semibold', 'shadow-md');
+            activeBtn.classList.remove('text-slate-400');
+        }
+
+        // --- TAB 1: SCRIPT GENERATOR LOGIC ---
+        function renderFieldsUI() {
+            const container = document.getElementById('fields-container');
+            container.innerHTML = '';
+
+            fields.forEach((field, idx) => {
+                const div = document.createElement('div');
+                div.className = "flex items-center gap-2 bg-slate-800/40 p-2 rounded-lg border border-slate-800";
+                div.innerHTML = `
+                    <input type="text" value="${field.name}" placeholder="Field Name" oninput="fields[${idx}].name=this.value; updateScriptGenerator()" class="w-1/3 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200 font-mono">
+                    <input type="text" value="${field.selector}" placeholder="CSS Selector" oninput="fields[${idx}].selector=this.value; updateScriptGenerator()" class="w-1/2 bg-slate-950 border border-slate-700 rounded px-2 py-1 text-xs text-emerald-400 font-mono">
+                    <button onclick="removeFieldRow(${idx})" class="text-slate-500 hover:text-red-400 p-1"><i class="fa-solid fa-trash"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function addFieldRow() {
+            fields.push({ name: 'field_' + (fields.length + 1), selector: '.selector', type: 'text' });
+            renderFieldsUI();
+            updateScriptGenerator();
+        }
+
+        function removeFieldRow(idx) {
+            if (fields.length <= 1) return;
+            fields.splice(idx, 1);
+            renderFieldsUI();
+            updateScriptGenerator();
+        }
+
+        function updateScriptGenerator() {
+            const g = id => document.getElementById(id);
+            const framework = document.querySelector('input[name="framework"]:checked').value;
+            const url = g('cfg-url').value || 'https://example.com';
+            const container = g('cfg-container').value || 'div.item';
+            const delay = parseFloat(g('cfg-delay').value) || 2;
+            const useUA = g('cfg-useragent').checked;
+            const useProxy = g('cfg-proxy').checked;
+            const autoExport = g('cfg-export').checked;
+            const fmt = g('cfg-format').value;
+            const usePage = g('cfg-paginate').checked;
+            const nextSel = g('cfg-next').value || 'a.next';
+            const maxPages = usePage ? (parseInt(g('cfg-maxpages').value) || 5) : 1;
+            const retries = parseInt(g('cfg-retries').value) || 0;
+            const useLog = g('cfg-log').checked;
+            const useRobots = g('cfg-robots').checked;
+            g('generated-filename').innerText = `scraper_${framework}.py`;
+
+            const logCfg = useLog
+                ? `logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s",\n                    handlers=[logging.FileHandler("scraper.log", encoding="utf-8"), logging.StreamHandler()])`
+                : `logging.basicConfig(level=logging.INFO, format="%(message)s")`;
+            const names = fields.map(f => `"${f.name}"`).join(', ');
+            const uaBlock = useUA
+                ? `USER_AGENTS = [\n    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",\n    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",\n    "Mozilla/5.0 (X11; Linux x86_64; rv:121.0) Gecko/20100101 Firefox/121.0",\n]\nUSER_AGENT = random.choice(USER_AGENTS)`
+                : `USER_AGENT = "Python-Scraper/1.0"`;
+            const robots = useRobots ? `\ndef allowed_by_robots(url):\n    rp = RobotFileParser()\n    rp.set_url(urljoin(url, "/robots.txt"))\n    try:\n        rp.read()\n        return rp.can_fetch("*", url)\n    except Exception:\n        return True  # robots.txt unreachable\n` : '';
+            const robotsCheck = useRobots ? `    if not allowed_by_robots(TARGET_URL):\n        log.error("Blocked by robots.txt - aborting.")\n        return []\n` : '';
+            const save = !autoExport ? '' : `\ndef save_results(rows):\n    if not rows:\n        log.warning("No data to save.")\n        return\n${fmt !== 'json' ? `    with open("scraped_output.csv", "w", newline="", encoding="utf-8") as f:\n        writer = csv.DictWriter(f, fieldnames=[${names}])\n        writer.writeheader()\n        writer.writerows(rows)\n    log.info("Saved scraped_output.csv")\n` : ''}${fmt !== 'csv' ? `    with open("scraped_output.json", "w", encoding="utf-8") as f:\n        json.dump(rows, f, ensure_ascii=False, indent=2)\n    log.info("Saved scraped_output.json")\n` : ''}`;
+            const head = `import logging, random, time, json, csv\n`;
+            const cfg = `\nTARGET_URL = "${url}"\nCONTAINER = "${container}"\nNEXT_SELECTOR = "${nextSel}"\nMAX_PAGES = ${maxPages}\nDELAY = ${delay}\nRETRIES = ${retries}\n${useProxy ? 'PROXY = "http://proxy.example.com:8080"  # replace with your proxy\n' : ''}${uaBlock}\n\n${logCfg}\nlog = logging.getLogger("scraper")\n`;
+            const mainCall = (fn, aw) => `\nif __name__ == "__main__":\n    data = ${fn}\n${autoExport ? '    save_results(data)\n' : ''}    log.info(f"Done: {len(data)} records")`;
+
+            let code = '';
+            if (framework === 'bs4') {
+                code = `${head}import requests\nfrom urllib.parse import urljoin\nfrom urllib.robotparser import RobotFileParser\nfrom bs4 import BeautifulSoup\n${cfg}${robots}${save}
+def fetch(session, url):
+    for attempt in range(1, RETRIES + 2):
+        try:
+            r = session.get(url, timeout=15)
+            r.raise_for_status()
+            return r
+        except requests.RequestException as e:
+            log.warning(f"Attempt {attempt} failed: {e}")
+            if attempt > RETRIES:
+                raise
+            time.sleep(2 ** attempt)  # backoff
+
+def scrape_data():
+${robotsCheck}    session = requests.Session()
+    session.headers.update({"User-Agent": USER_AGENT})
+${useProxy ? '    session.proxies.update({"http": PROXY, "https": PROXY})\n' : ''}    results, page_url, page_no = [], TARGET_URL, 1
+    while page_url and page_no <= MAX_PAGES:
+        log.info(f"[*] Page {page_no}: {page_url}")
+        try:
+            response = fetch(session, page_url)
+        except requests.RequestException as e:
+            log.error(f"Giving up on {page_url}: {e}")
+            break
+        soup = BeautifulSoup(response.text, "html.parser")
+        for item in soup.select(CONTAINER):
+            record = {}
+${fields.map(f => `            el = item.select_one("${f.selector}")\n            record["${f.name}"] = el.get_text(strip=True) if el else None`).join('\n')}
+            results.append(record)
+${usePage ? '        nxt = soup.select_one(NEXT_SELECTOR)\n        page_url = urljoin(page_url, nxt["href"]) if nxt and nxt.get("href") else None\n' : '        page_url = None\n'}        page_no += 1
+        time.sleep(DELAY)
+    return results
+${mainCall('scrape_data()')}`;
+            } else if (framework === 'selenium') {
+                code = `${head}from urllib.parse import urljoin\nfrom urllib.robotparser import RobotFileParser\nfrom selenium import webdriver\nfrom selenium.webdriver.common.by import By\nfrom selenium.webdriver.chrome.options import Options\n${cfg}${robots}${save}
+def run_selenium_scraper():
+${robotsCheck}    options = Options()
+    options.add_argument("--headless=new")
+    options.add_argument("--disable-gpu")
+    options.add_argument(f"user-agent={USER_AGENT}")
+${useProxy ? '    options.add_argument(f"--proxy-server={PROXY}")\n' : ''}    driver = webdriver.Chrome(options=options)
+    results = []
+    try:
+        driver.get(TARGET_URL)
+        for page_no in range(1, MAX_PAGES + 1):
+            time.sleep(DELAY)  # wait for JS
+            log.info(f"[*] Page {page_no}: {driver.current_url}")
+            for element in driver.find_elements(By.CSS_SELECTOR, CONTAINER):
+                data = {}
+${fields.map(f => `                try:\n                    data["${f.name}"] = element.find_element(By.CSS_SELECTOR, "${f.selector}").text\n                except Exception:\n                    data["${f.name}"] = None`).join('\n')}
+                results.append(data)
+${usePage ? '            nxt = driver.find_elements(By.CSS_SELECTOR, NEXT_SELECTOR)\n            if not nxt:\n                break\n            nxt[0].click()\n' : '            break\n'}    except Exception as e:
+        log.error(f"Scrape failed: {e}")
+    finally:
+        driver.quit()
+    return results
+${mainCall('run_selenium_scraper()')}`;
+            } else {
+                code = `import asyncio\n${head}from urllib.parse import urljoin\nfrom urllib.robotparser import RobotFileParser\nfrom playwright.async_api import async_playwright\n${cfg}${robots}${save}
+async def goto_with_retry(page, url):
+    for attempt in range(1, RETRIES + 2):
+        try:
+            await page.goto(url, timeout=30000)
+            return True
+        except Exception as e:
+            log.warning(f"Attempt {attempt} failed: {e}")
+            await asyncio.sleep(2 ** attempt)  # backoff
+    return False
+
+async def run_playwright():
+${robotsCheck}    results = []
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True${useProxy ? ', proxy={"server": PROXY}' : ''})
+        context = await browser.new_context(user_agent=USER_AGENT)
+        page = await context.new_page()
+        if not await goto_with_retry(page, TARGET_URL):
+            log.error("Could not load target page.")
+            await browser.close()
+            return results
+        for page_no in range(1, MAX_PAGES + 1):
+            await page.wait_for_timeout(DELAY * 1000)
+            log.info(f"[*] Page {page_no}: {page.url}")
+            for el in await page.query_selector_all(CONTAINER):
+                record = {}
+${fields.map(f => `                t = await el.query_selector("${f.selector}")\n                record["${f.name}"] = (await t.inner_text()).strip() if t else None`).join('\n')}
+                results.append(record)
+${usePage ? '            nxt = await page.query_selector(NEXT_SELECTOR)\n            if not nxt:\n                break\n            await nxt.click()\n            await page.wait_for_load_state("domcontentloaded")\n' : '            break\n'}        await browser.close()
+    return results
+${mainCall('asyncio.run(run_playwright())')}`;
+            }
+            g('python-code-output').innerText = code;
+        }
+
+        // --- PRESETS + SAVE/LOAD CONFIG ---
+        const presets = {
+            ecommerce: { url: 'https://example-store.com/products', container: 'div.product-card', fields: [['title','h2.product-title'],['price','span.price'],['rating','.rating']], next: 'a.next' },
+            news: { url: 'https://example-news.com/latest', container: 'article', fields: [['headline','h2 a'],['date','time'],['summary','p.summary']], next: 'a.next' },
+            jobs: { url: 'https://example-jobs.com/search', container: 'div.job-listing', fields: [['title','h3.job-title'],['company','.company'],['location','.location'],['salary','.salary']], next: 'a.next-page' }
+        };
+        function applyPreset(key) {
+            const p = presets[key];
+            if (!p) return;
+            document.getElementById('cfg-url').value = p.url;
+            document.getElementById('cfg-container').value = p.container;
+            document.getElementById('cfg-next').value = p.next;
+            fields = p.fields.map(([name, selector]) => ({ name, selector, type: 'text' }));
+            renderFieldsUI();
+            updateScriptGenerator();
+        }
+        const cfgIds = ['cfg-url','cfg-container','cfg-delay','cfg-format','cfg-next','cfg-maxpages','cfg-retries'];
+        const cfgChecks = ['cfg-useragent','cfg-proxy','cfg-export','cfg-paginate','cfg-log','cfg-robots'];
+        function saveConfig() {
+            const cfg = { fields, framework: document.querySelector('input[name="framework"]:checked').value };
+            cfgIds.forEach(id => cfg[id] = document.getElementById(id).value);
+            cfgChecks.forEach(id => cfg[id] = document.getElementById(id).checked);
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([JSON.stringify(cfg, null, 2)], { type: 'application/json' }));
+            a.download = 'pyscrape_config.json';
+            a.click();
+        }
+        function loadConfig(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = () => {
+                try {
+                    const cfg = JSON.parse(reader.result);
+                    cfgIds.forEach(id => { if (cfg[id] !== undefined) document.getElementById(id).value = cfg[id]; });
+                    cfgChecks.forEach(id => { if (cfg[id] !== undefined) document.getElementById(id).checked = cfg[id]; });
+                    if (Array.isArray(cfg.fields) && cfg.fields.length) fields = cfg.fields;
+                    const r = document.querySelector(`input[name="framework"][value="${cfg.framework}"]`);
+                    if (r) r.checked = true;
+                    renderFieldsUI();
+                    updateScriptGenerator();
+                } catch (e) { alert('Invalid config file.'); }
+            };
+            reader.readAsText(file);
+            input.value = '';
+        }
+
+        
+function copyCode() {
+            const code = document.getElementById('python-code-output').innerText;
+            navigator.clipboard.writeText(code);
+            alert("Python script copied to clipboard!");
+        }
+
+        function downloadCode() {
+            const code = document.getElementById('python-code-output').innerText;
+            const filename = document.getElementById('generated-filename').innerText;
+            const blob = new Blob([code], { type: 'text/plain' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.click();
+        }
+
+        // --- TAB 2: SIMULATOR LOGIC ---
+        function loadSimMockTarget() {
+            const key = document.getElementById('sim-target-select').value;
+            const target = mockTargets[key];
+            document.getElementById('sim-dom-preview').innerHTML = target.dom;
+        }
+
+        function runSimulation() {
+            const key = document.getElementById('sim-target-select').value;
+            const target = mockTargets[key];
+            const data = target.extracted;
+
+            const thead = document.getElementById('sim-table-head');
+            const tbody = document.getElementById('sim-table-body');
+
+            if (data.length === 0) return;
+
+            // Generate Headers
+            const keys = Object.keys(data[0]);
+            thead.innerHTML = `<th class="p-3">#</th>` + keys.map(k => `<th class="p-3 uppercase">${k}</th>`).join('');
+
+            // Generate Body
+            tbody.innerHTML = data.map((row, i) => `
+                <tr class="hover:bg-slate-800/40 border-b border-slate-800">
+                    <td class="p-3 text-slate-500">${i + 1}</td>
+                    ${keys.map(k => `<td class="p-3 text-emerald-300">${row[k]}</td>`).join('')}
+                </tr>
+            `).join('');
+
+            document.getElementById('sim-records-count').innerText = `${data.length} items extracted`;
+        }
+
+        // --- TAB 3: PIPELINE LOGIC ---
+        function runDataPipeline() {
+            const strip = document.getElementById('pipe-strip').checked;
+            const price = document.getElementById('pipe-price').checked;
+            const dedupe = document.getElementById('pipe-dedupe').checked;
+            const nulls = document.getElementById('pipe-nulls').checked;
+
+            document.getElementById('pipeline-raw-input').innerText = JSON.stringify(rawDirtyData, null, 2);
+
+            let processed = JSON.parse(JSON.stringify(rawDirtyData));
+
+            // Strip Whitespace
+            if (strip) {
+                processed = processed.map(item => {
+                    for (let key in item) {
+                        if (typeof item[key] === 'string') {
+                            item[key] = item[key].trim();
+                        }
+                    }
+                    return item;
+                });
+            }
+
+            // Cast Prices
+            if (price) {
+                processed = processed.map(item => {
+                    if (item.price && typeof item.price === 'string') {
+                        const num = parseFloat(item.price.replace(/[^0-9.-]+/g, ""));
+                        item.price = isNaN(num) ? item.price : num;
+                    }
+                    return item;
+                });
+            }
+
+            // Filter Nulls
+            if (nulls) {
+                processed = processed.filter(item => item.title && item.price !== null && item.price !== undefined);
+            }
+
+            // Deduplicate
+            if (dedupe) {
+                const seen = new Set();
+                processed = processed.filter(item => {
+                    const duplicate = seen.has(item.title);
+                    seen.add(item.title);
+                    return !duplicate;
+                });
+            }
+
+            // Format Output
+            let outputText = "";
+            if (exportFormat === 'json') {
+                outputText = JSON.stringify(processed, null, 2);
+            } else if (exportFormat === 'csv') {
+                if (processed.length > 0) {
+                    const keys = Object.keys(processed[0]);
+                    outputText = keys.join(',') + '\n' + processed.map(r => keys.map(k => `"${r[k]}"`).join(',')).join('\n');
+                }
+            } else if (exportFormat === 'sql') {
+                outputText = `CREATE TABLE scraped_products (\n  id INTEGER PRIMARY KEY,\n  title TEXT,\n  price REAL,\n  rating TEXT\n);\n\n`;
+                outputText += processed.map(r => `INSERT INTO scraped_products (title, price, rating) VALUES ('${r.title}', ${r.price}, '${r.rating}');`).join('\n');
+            } else if (exportFormat === 'excel') {
+                if (processed.length > 0) {
+                    const keys = Object.keys(processed[0]);
+                    outputText = keys.join('\t') + '\n' + processed.map(r => keys.map(k => r[k]).join('\t')).join('\n');
+                }
+            }
+
+            document.getElementById('pipeline-clean-output').innerText = outputText;
+        }
+
+        function setExportFormat(fmt) {
+            exportFormat = fmt;
+            document.querySelectorAll('.fmt-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-400');
+                btn.classList.add('bg-slate-800', 'border-slate-700', 'text-slate-300');
+            });
+            const activeBtn = document.getElementById(`fmt-${fmt}`);
+            activeBtn.classList.add('bg-emerald-500/20', 'border-emerald-500', 'text-emerald-400');
+            runDataPipeline();
+        }
+
+        function copyPipelineOutput() {
+            const code = document.getElementById('pipeline-clean-output').innerText;
+            navigator.clipboard.writeText(code);
+            alert("Cleaned data copied to clipboard!");
+        }
+
+        // --- TAB 4: RATE LIMITS & PROXIES ---
+        function renderProxies() {
+            const tbody = document.getElementById('proxy-table-body');
+            tbody.innerHTML = proxies.map(p => `
+                <tr class="hover:bg-slate-800/40">
+                    <td class="p-2.5 font-bold text-slate-200">${p.ip}</td>
+                    <td class="p-2.5 text-slate-400">${p.region}</td>
+                    <td class="p-2.5 text-indigo-400">${p.proto}</td>
+                    <td class="p-2.5 text-cyan-400">${p.latency}</td>
+                    <td class="p-2.5">
+                        <span class="px-2 py-0.5 rounded-full text-[10px] ${p.status === 'Active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}">
+                            ${p.status}
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function simulateNetworkTraffic() {
+            // Randomize Latencies
+            proxies.forEach(p => {
+                p.latency = Math.floor(Math.random() * 200 + 80) + ' ms';
+            });
+            renderProxies();
+
+            // Flash stats
+            document.getElementById('stat-latency').innerText = Math.floor(Math.random() * 50 + 110) + ' ms';
+        }
+
+        // --- TAB 5: SCHEDULER LOGIC ---
+        function renderJobs() {
+            const container = document.getElementById('jobs-container');
+            container.innerHTML = scheduledJobs.map(j => `
+                <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-5 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-mono bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-full">${j.framework}</span>
+                            <span class="text-xs ${j.status === 'Active' ? 'text-emerald-400' : 'text-slate-500'} flex items-center gap-1 font-medium">
+                                <i class="fa-solid fa-circle text-[8px]"></i> ${j.status}
+                            </span>
+                        </div>
+                        <h3 class="text-sm font-bold text-white mb-1">${j.name}</h3>
+                        <p class="text-xs text-slate-400 font-mono"><i class="fa-regular fa-clock mr-1"></i> Cron: ${j.cron}</p>
+                    </div>
+
+                    <div class="pt-3 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
+                        <span>Last Run: ${j.lastRun}</span>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="toggleJob(${j.id})" class="p-1.5 hover:text-white transition"><i class="fa-solid ${j.status === 'Active' ? 'fa-pause' : 'fa-play'}"></i></button>
+                            <button onclick="deleteJob(${j.id})" class="p-1.5 hover:text-red-400 transition"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleJob(id) {
+            const job = scheduledJobs.find(j => j.id === id);
+            if (job) {
+                job.status = job.status === 'Active' ? 'Paused' : 'Active';
+                renderJobs();
+            }
+        }
+
+        function deleteJob(id) {
+            scheduledJobs = scheduledJobs.filter(j => j.id !== id);
+            renderJobs();
+        }
+
+        function openNewJobModal() {
+            const name = prompt("Enter Workflow Job Name:");
+            if (name) {
+                scheduledJobs.push({
+                    id: Date.now(),
+                    name: name,
+                    cron: "0 */2 * * *",
+                    framework: "Playwright",
+                    target: "Custom",
+                    status: "Active",
+                    lastRun: "Just now"
+                });
+                renderJobs();
+            }
+        }
+
+        // --- INIT ---
+        window.onload = function() {
+            renderFieldsUI();
+            updateScriptGenerator();
+            loadSimMockTarget();
+            runDataPipeline();
+            renderProxies();
+            renderJobs();
+        };
+    </script>
+</body>
+</html>
