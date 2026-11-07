@@ -2,8 +2,8 @@
 
 A single-file, browser-based **web scraping script generator**. Fill in a form, get a ready-to-run Python scraper. No install, no backend, just open `index.html`.
 
-![screenshot](<img width="1852" height="918" alt="image" src="https://github.com/user-attachments/assets/a0db9df5-0756-4f21-89c3-afa1f5f9d704" />
-)
+screenshot = <img width="1852" height="918" alt="image" src="https://github.com/user-attachments/assets/8afd1669-89e5-42d5-b8d9-1dd96ad7cd08" />
+
 
 ## What it does
 
